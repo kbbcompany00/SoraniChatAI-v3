@@ -3,8 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertMessageSchema } from "@shared/schema";
 import { nanoid } from "nanoid";
-import { findMatchingKnowledge } from "./knowledge-base";
-import { PerformanceTimer, workerPool } from "./performance";
+import { findMatchingKnowledge, qalaInstitute } from "./knowledge-base";
+import { PerformanceTimer, workerPool, patternMatchCache, patternMap } from "./performance";
 import { refreshKnowledgeBase, getSyncStats } from "./sync-manager";
 import { throttledRequest, getThrottlingStats } from "./request-throttler";
 import { streamingChatCompletion, processStreamingResponse } from "./cohere-service";
@@ -183,6 +183,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Stream chat API endpoint
+  // Knowledge base management endpoints
+  app.post('/api/system/refresh-knowledge', async (req: Request, res: Response) => {
+    try {
+      const forceFullRefresh = req.query.full === 'true';
+      refreshKnowledgeBase(forceFullRefresh);
+      res.json({ 
+        success: true, 
+        message: `Knowledge base ${forceFullRefresh ? 'fully' : 'partially'} refreshed`, 
+        stats: getSyncStats() 
+      });
+    } catch (error) {
+      console.error('Error refreshing knowledge base:', error);
+      res.status(500).json({ error: 'Failed to refresh knowledge base' });
+    }
+  });
+  
+  // Performance monitoring endpoint
+  app.get('/api/system/performance', async (_req: Request, res: Response) => {
+    try {
+      // Gather performance statistics from all optimized components
+      const performanceStats = {
+        knowledge: {
+          entries: qalaInstitute.length,
+          patterns: patternMap.size,
+          cacheStats: patternMatchCache.getStats(),
+          syncStats: getSyncStats()
+        },
+        throttling: getThrottlingStats(),
+        memory: {
+          heapUsed: process.memoryUsage().heapUsed / 1024 / 1024,
+          heapTotal: process.memoryUsage().heapTotal / 1024 / 1024,
+          rss: process.memoryUsage().rss / 1024 / 1024
+        },
+        uptime: process.uptime()
+      };
+      
+      res.json(performanceStats);
+    } catch (error) {
+      console.error('Error retrieving performance stats:', error);
+      res.status(500).json({ error: 'Failed to retrieve performance statistics' });
+    }
+  });
+
   app.get('/api/chat/stream', async (req: Request, res: Response) => {
     const message = req.query.message as string;
     
@@ -293,7 +336,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return;
       }
       
-      // If no match found in our knowledge base, proceed with Cohere API as usual
+      // If no match found in our knowledge base, proceed with optimized Cohere API
+      const timer = new PerformanceTimer();
+      timer.mark('apiRequestStart');
       
       // Enhanced system message for detailed Sorani Kurdish responses
       const systemPrompt = 
@@ -306,115 +351,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "NEVER use any language except Sorani Kurdish under any circumstances. " +
         "If the user asks a complicated question, break down your answer into clear sections.";
       
-      // Prepare headers for Cohere API
-      const headers = {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      };
-      
-      // Prepare request body for Cohere API with detailed Sorani Kurdish responses
-      const cohereRequestBody = {
-        message: message,
-        model: 'command-r-plus',
-        stream: true,
-        preamble: systemPrompt,
-        temperature: 0.65, // Balanced temperature for creativity and accuracy
-        p: 0.8, // Good balance for coherent but varied responses
-        max_tokens: 800, // Allow for longer, more detailed responses
-      };
-      
-      // Make streaming request to Cohere API
-      const cohereResponse = await fetch('https://api.cohere.ai/v1/chat', {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(cohereRequestBody)
-      });
-      
-      if (!cohereResponse.ok) {
-        const errorText = await cohereResponse.text();
-        console.error(`Cohere API error: ${cohereResponse.status} ${errorText}`);
-        res.write(`data: Error connecting to AI service: ${cohereResponse.status}\n\n`);
-        res.write('data: [DONE]\n\n');
-        res.end();
-        return;
-      }
-      
-      // Handle streaming response
-      const reader = cohereResponse.body?.getReader();
-      
-      if (!reader) {
-        res.write('data: Error: No response from AI service\n\n');
-        res.write('data: [DONE]\n\n');
-        res.end();
-        return;
-      }
-      
+      // Define completeResponse at this scope level to access it later
       let completeResponse = '';
       
-      // Process chunks from the stream
-      while (true) {
-        const { done, value } = await reader.read();
+      // Use the optimized throttled request to manage concurrent API requests
+      // The throttling system ensures no lag spikes even under high concurrent loads
+      try {
+        // Request streaming response from optimized Cohere service
+        const responseStream = await streamingChatCompletion(message, systemPrompt, {
+          temperature: 0.65, // Balanced temperature for creativity and accuracy
+          p: 0.8, // Good balance for coherent but varied responses
+          maxTokens: 800, // Allow for longer, more detailed responses
+          retryAttempts: 1 // Allow one retry on failure
+        });
         
-        if (done) {
-          break;
+        timer.mark('streamReceived');
+        
+        // Handle null stream (should never happen due to error handling in service)
+        if (!responseStream) {
+          res.write('data: Error: No response from AI service\n\n');
+          res.write('data: [DONE]\n\n');
+          res.end();
+          return;
         }
         
-        // Decode the chunk
-        const chunk = Buffer.from(value).toString('utf-8');
+        // Get reader from stream
+        const reader = responseStream.getReader();
         
-        // Parse the chunk to get the text content and fix Kurdish character issues
-        try {
-          // Process each line in the chunk (Cohere sends JSON lines)
-          const lines = chunk.split('\n').filter(line => line.trim());
-          
-          for (const line of lines) {
-            if (line.includes('"text"')) {
-              try {
-                // Handle potential JSON parsing issues
-                let jsonString = line;
-                
-                // If JSON is malformed (doesn't end with closing brace), try to fix it
-                if (!jsonString.endsWith('}')) {
-                  jsonString += '}';
-                }
-                
-                const jsonLine = JSON.parse(jsonString);
-                if (jsonLine.text) {
-                  // Clean and concatenate full response without Unicode character issues
-                  const cleanText = jsonLine.text
-                    .replace(/\\n/g, '\n')
-                    .replace(/\\"/g, '"')
-                    // Remove any special character separators that make text unusable
-                    .replace(/([^\s])\\([a-zA-Z])/g, '$1$2')
-                    // Handle Kurdish characters by removing quotes
-                    .replace(/"([ەڕێۆ،ن])"/g, '$1');
-                  
-                  completeResponse += cleanText;
-                  res.write(`data: ${cleanText}\n\n`);
-                }
-              } catch (e) {
-                // If JSON parsing fails, try to extract text with regex
-                try {
-                  const textMatch = line.match(/"text":"([^"]*)"/);
-                  if (textMatch && textMatch[1]) {
-                    const text = textMatch[1]
-                      .replace(/\\n/g, '\n')
-                      .replace(/\\"/g, '"');
-                    completeResponse += text;
-                    res.write(`data: ${text}\n\n`);
-                  } else {
-                    console.error('Error parsing JSON line:', e);
-                  }
-                } catch (regexError) {
-                  console.error('Error with regex extraction:', regexError);
-                }
-              }
-            }
+        // Use our optimized processStreamingResponse function to handle the stream
+        await processStreamingResponse(
+          reader,
+          // On each chunk, write to response
+          (chunk) => {
+            res.write(`data: ${chunk}\n\n`);
+          },
+          // On complete, save the full response
+          (fullText) => {
+            completeResponse = fullText;
+            timer.mark('processingComplete');
           }
-        } catch (error) {
-          console.error('Error processing chunk:', error);
-        }
+        );
+        
+        console.log(`AI response generated in ${timer.elapsed('apiRequestStart')}ms, processing: ${timer.elapsed('streamReceived')}ms`);
+      } catch (err) {
+        // Enhanced error handling with detailed information
+        console.error('Error during streaming response:', err);
+        
+        // Type guard for error message
+        const error = err instanceof Error ? err : new Error(String(err));
+        
+        // More detailed error message to the client
+        res.write(`data: Error processing your request: ${error.message || 'Unknown error'}\n\n`);
+        res.write('data: [DONE]\n\n');
+        res.end();
+        return;
       }
       
       // Save the assistant's complete response to storage
