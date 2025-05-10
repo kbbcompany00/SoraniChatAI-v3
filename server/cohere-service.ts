@@ -17,14 +17,24 @@ let apiKeyCache: string | null = null;
 function getCohereApiKey(): string {
   if (apiKeyCache) return apiKeyCache;
   
-  const apiKey = process.env.COHERE_API_KEY || process.env.COHERE_KEY || '';
-  
-  if (!apiKey) {
-    console.error("Missing Cohere API key. Set COHERE_API_KEY environment variable.");
+  // Try to import from config first
+  try {
+    const { COHERE_API_KEY } = require('./config');
+    if (COHERE_API_KEY) {
+      apiKeyCache = COHERE_API_KEY;
+      return COHERE_API_KEY;
+    }
+  } catch (e) {
+    // Fallback to direct environment variable access
+    const apiKey = process.env.COHERE_API_KEY || process.env.COHERE_KEY || '';
+    
+    if (!apiKey) {
+      console.error("Missing Cohere API key. Set COHERE_API_KEY environment variable.");
+    }
+    
+    apiKeyCache = apiKey;
+    return apiKey;
   }
-  
-  apiKeyCache = apiKey;
-  return apiKey;
 }
 
 /**

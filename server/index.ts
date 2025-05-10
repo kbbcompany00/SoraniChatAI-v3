@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import config from "./config";
 
 const app = express();
 // Set higher limits for JSON body parser to accommodate base64 encoded images
@@ -57,15 +58,13 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  // Use the port from configuration or environment variables
+  const port = config.PORT;
   server.listen({
     port,
-    host: "0.0.0.0",
+    host: config.HOST,
     reusePort: true,
   }, () => {
-    log(`serving on port ${port}`);
+    log(`serving on port ${port} in ${config.NODE_ENV} mode`);
   });
 })();
