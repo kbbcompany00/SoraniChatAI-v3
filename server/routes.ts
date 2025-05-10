@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertMessageSchema } from "@shared/schema";
 import { nanoid } from "nanoid";
+import { findMatchingKnowledge } from "./knowledge-base";
 
 // Function to init Cohere client with API key from environment variables
 const initCohere = () => {
@@ -201,6 +202,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
       
+      // First check if this is a query about Qala Institute
+      const matchingKnowledge = findMatchingKnowledge(message);
+      
+      // If we have a match from our knowledge base, send that directly
+      if (matchingKnowledge) {
+        console.log("Found matching knowledge base entry for query about Qala Institute");
+        
+        // Get complete response with links if available
+        let completeResponse = matchingKnowledge.response;
+        
+        if (matchingKnowledge.links && matchingKnowledge.links.length > 0) {
+          completeResponse += "\n\n";
+          for (const link of matchingKnowledge.links) {
+            completeResponse += link + "\n";
+          }
+        }
+        
+        // Send the response in chunks to simulate streaming, which provides a better UX
+        const chunks = completeResponse.split('\n');
+        for (const chunk of chunks) {
+          // Only send non-empty chunks
+          if (chunk.trim()) {
+            res.write(`data: ${chunk}\n\n`);
+            
+            // Small delay to simulate realistic typing/streaming
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        }
+        
+        // Save the assistant's complete response to storage
+        await storage.createMessage({
+          role: 'assistant',
+          content: completeResponse,
+          sessionId
+        });
+        
+        // Signal end of stream
+        res.write('data: [DONE]\n\n');
+        res.end();
+        return;
+      }
+      
+      // If no match found in our knowledge base, proceed with Cohere API as usual
+      
       // Enhanced system message for detailed Sorani Kurdish responses
       const systemPrompt = 
         "You are زیرەکی دەستکردی قەڵا, an expert in providing detailed information. " +
@@ -293,7 +338,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     .replace(/\\"/g, '"')
                     // Remove any special character separators that make text unusable
                     .replace(/([^\s])\\([a-zA-Z])/g, '$1$2')
-                    .replace(/("ە"|"ڕ"|"ێ"|"ۆ"|"،"|"ن")/g, (match) => match.replace(/"/g, ''));
+                    // Handle Kurdish characters by removing quotes
+                    .replace(/("ە"|"ڕ"|"ێ"|"ۆ"|"،"|"ن")/g, function(m) { return m.replace(/"/g, ''); });
                   
                   completeResponse += cleanText;
                   res.write(`data: ${cleanText}\n\n`);
