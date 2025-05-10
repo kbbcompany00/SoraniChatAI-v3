@@ -102,20 +102,8 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) =>
             <>
               <div className="flex">
                 <div className="bg-white border border-indigo-100 rounded-2xl py-3 px-5 max-w-[85%] shadow-md">
-                  <div className="leading-relaxed" 
-                    dangerouslySetInnerHTML={{ 
-                      __html: message.content
-                        .replace(/\n\n/g, '<br/><br/>')
-                        .replace(/\n/g, '<br/>') 
-                    }}
-                    style={{ 
-                      direction: 'rtl', 
-                      textAlign: 'right',
-                      maxWidth: '100%', 
-                      overflowWrap: 'break-word'
-                    }}
-                  />
-                  {message.isStreaming && <span className="typing-animation ml-1"></span>}
+                  <div className="leading-relaxed" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n\n/g, '<br/><br/>').replace(/\n/g, '<br/>') }} />
+                  {message.isStreaming && <span className="typing-animation"></span>}
                 </div>
               </div>
               <div className="flex mt-1.5">
