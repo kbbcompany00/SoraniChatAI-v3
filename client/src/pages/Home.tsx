@@ -1,0 +1,61 @@
+import { useState, useEffect } from "react";
+import Header from "@/components/Header";
+import InfoBanner from "@/components/InfoBanner";
+import ChatContainer from "@/components/ChatContainer";
+import MessageInput from "@/components/MessageInput";
+import { useChat } from "@/hooks/useChat";
+
+const Home = () => {
+  const [showBanner, setShowBanner] = useState(true);
+  
+  // Load banner state from localStorage
+  useEffect(() => {
+    const isBannerDismissed = localStorage.getItem('infoBannerDismissed') === 'true';
+    setShowBanner(!isBannerDismissed);
+  }, []);
+
+  // Handle banner dismissal
+  const handleDismissBanner = () => {
+    setShowBanner(false);
+    localStorage.setItem('infoBannerDismissed', 'true');
+  };
+
+  // Use our chat hook to manage state and functionality
+  const { 
+    messages, 
+    messageInput, 
+    setMessageInput, 
+    sendMessage, 
+    isLoading, 
+    isNonKurdishDetected 
+  } = useChat();
+
+  return (
+    <div className="flex flex-col h-screen">
+      {/* Header component */}
+      <Header />
+      
+      {/* Optional information banner */}
+      {showBanner && (
+        <InfoBanner onDismiss={handleDismissBanner} />
+      )}
+      
+      {/* Main chat area */}
+      <ChatContainer 
+        messages={messages}
+        isLoading={isLoading}
+      />
+      
+      {/* Message input component */}
+      <MessageInput
+        value={messageInput}
+        onChange={setMessageInput}
+        onSend={sendMessage}
+        isLoading={isLoading}
+        isNonKurdishDetected={isNonKurdishDetected}
+      />
+    </div>
+  );
+};
+
+export default Home;
