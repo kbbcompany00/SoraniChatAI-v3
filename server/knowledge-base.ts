@@ -1,10 +1,19 @@
 // This file provides a knowledge base for specific queries about the Qala Non-Governmental Institute
 // It contains information to respond to specific inquiries while maintaining Kurdish language support
+import { 
+  patternMatchCache, 
+  patternMap, 
+  regexCache, 
+  indexPatterns, 
+  tokenize, 
+  prefetchCache
+} from './performance';
 
-interface KnowledgeEntry {
+export interface KnowledgeEntry {
   patterns: string[];
   response: string;
   links?: string[];
+  priority?: number; // Higher number = higher priority for multiple matches
 }
 
 // Knowledge base about Qala Non-Governmental Institute
