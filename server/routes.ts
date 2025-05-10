@@ -88,8 +88,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Prepare request body for Cohere /v2/embed API with image input
         const embedRequestBody = {
           model: 'embed-v4.0',
-          inputType: 'image',
-          embeddingTypes: ['float'],
+          input_type: 'image',
+          embedding_types: ['float'],
           images: [image],
         };
         
@@ -134,8 +134,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const embedRequestBody = {
           texts: [`Image description`],
           model: 'embed-multilingual-v3.0',
-          inputType: 'classification',
-          embeddingTypes: ['float'],
+          input_type: 'classification',
+          embedding_types: ['float'],
         };
         
         // Make request to Cohere API
