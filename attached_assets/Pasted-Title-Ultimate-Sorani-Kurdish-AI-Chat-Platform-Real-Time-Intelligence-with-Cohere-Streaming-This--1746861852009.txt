@@ -1,0 +1,74 @@
+Title: Ultimate Sorani Kurdish AI Chat Platform – Real-Time Intelligence with Cohere Streaming
+This project is a next-generation, full-stack AI chat system purpose-built for Sorani Kurdish users. It combines real-time response streaming, a refined right-to-left (RTL) interface, and an AI language brain that understands everything — powered by Cohere’s Command R+ model. The system is engineered for speed, depth, clarity, and cultural relevance, delivering responses that feel human, smart, and local.
+
+🧠 What Makes It Unique
+At its core is a Language Enforcement Engine and Contextual AI Understanding Layer — regardless of what language the user types (English, Arabic, Persian, Turkish, etc.), the system:
+
+Understands the question precisely, even with mixed-language or slang input
+
+Auto-detects the input language
+
+Always replies in fluent, natural Sorani Kurdish
+
+Ensures every answer reflects Kurdish culture, local context, and technical accuracy
+
+This isn't just an AI that chats — it's an intelligent Kurdish-language assistant with global awareness and local fluency.
+
+⚙️ Technical Stack & Architecture Overview
+💬 Backend – FastAPI (Python)
+
+Fully asynchronous backend built with FastAPI
+
+Real-time Server-Sent Events (SSE) stream token-by-token AI replies
+
+Smart middleware layer to enforce Sorani output
+
+Easily extendable for logging, auth, translations, and memory
+
+🧠 Cohere API v2 – Command R+ (Streaming)
+
+Connected via stream: true to Cohere’s Command R+, one of the smartest LLMs available
+
+Delivers intelligent, context-aware, high-fidelity responses
+
+Future-ready for RAG, search augmentation, or tool-calling integration
+
+🧭 Language Enforcement Layer
+
+Detects any incoming language → forces output to Sorani Kurdish
+
+Can be extended with live translation, slang handling, and user dialect adaptation
+
+Guarantees cultural, linguistic, and semantic consistency in all replies
+
+⚡ Frontend – Next.js (TypeScript)
+
+Built using Next.js App Router with full RTL layout and instant stream updates
+
+Token-level streaming: every word appears live for a ChatGPT-like experience
+
+Highly modular, responsive, and optimized for mobile devices
+
+🌐 Tailwind CSS + Shadcn/UI
+
+Beautifully clean UI with perfect support for Sorani fonts, typography, and direction
+
+Pre-styled chat bubbles, input components, system messages, and animations
+
+🔄 Redis (Optional)
+
+Used to cache user sessions, chat history, or embeddings for fast recall
+
+Optional integration with PostgreSQL for long-term storage or analytics
+
+🌍 Internationalization & Sorani Default Output
+
+UI and all model responses are defaulted to Sorani
+
+Future support for switching frontend language, but backend will always reply in Sorani unless overridden
+
+📲 Ultra-Responsive UX
+
+Fully optimized for phones, tablets, and desktop
+
+Pixel-perfect rendering, fast load times, and elegant chat flow

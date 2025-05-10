@@ -1,0 +1,81 @@
+Build a real-time AI chatbot platform using Cohere’s v2 Chat API (command-a-03-2025) with streaming, ensuring:
+
+🔒 API key security (no exposure on client)
+
+🌍 All responses auto-return in Sorani Kurdish, regardless of user input language
+
+⚡ Token-by-token streaming to the frontend UI
+
+💬 Full Sorani RTL layout in Next.js frontend
+
+🔧 Backend – FastAPI (Python)
+✔️ Responsibilities:
+Handle incoming user messages from the frontend
+
+Call Cohere’s chat_stream method securely using ClientV2
+
+Enforce Sorani Kurdish-only responses by injecting system prompt
+
+Stream each token using Server-Sent Events (SSE) to the frontend
+
+🧪 Cohere Streaming Endpoint Example
+python
+Copy
+Edit
+import cohere
+from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse
+
+co = cohere.ClientV2("YOUR_COHERE_API_KEY")
+app = FastAPI()
+
+@app.get("/api/stream")
+def stream_chat(message: str):
+    def stream():
+        messages = [
+            {"role": "system", "content": "Always respond only in Sorani Kurdish, no matter the input language."},
+            {"role": "user", "content": message}
+        ]
+        response = co.chat_stream(
+            model="command-a-03-2025",
+            messages=messages
+        )
+        for event in response:
+            if event.type == "content-delta":
+                text = event.delta.message.content.text
+                yield f"data: {text}\n\n"
+    return StreamingResponse(stream(), media_type="text/event-stream")
+💻 Frontend – Next.js (React + TypeScript)
+✔️ Responsibilities:
+Use EventSource (SSE) to receive streamed tokens from FastAPI backend
+
+Update chat UI token-by-token
+
+Display in RTL layout with Sorani font styling
+
+Auto-scroll as tokens arrive
+
+🧪 TypeScript Streaming Hook
+ts
+Copy
+Edit
+export function streamFromServer(message: string, onToken: (token: string) => void) {
+  const eventSource = new EventSource(`/api/stream?message=${encodeURIComponent(message)}`);
+
+  eventSource.onmessage = (event) => {
+    onToken(event.data); // Append each streamed token to UI
+  };
+
+  eventSource.onerror = () => {
+    console.error("Stream error");
+    eventSource.close();
+  };
+}
+🎯 Key Design Principles
+Goal	Implementation Strategy
+🔐 Secure API Key	Keep Cohere calls entirely on the backend — never expose API key in the browser
+🌍 Force Sorani Kurdish Output	Always prepend system message: “Respond only in Sorani Kurdish regardless of input.”
+⚡ Fast Streaming Experience	Use FastAPI + SSE for ultra-low-latency delivery to the frontend
+💬 Natural Chat Flow	Token-by-token streaming in React via EventSource
+📲 Mobile-first Responsive UI	Use Tailwind CSS + Shadcn/UI, fully RTL for Sorani
+🧠 Intelligent AI	Use Cohere’s command-a-03-2025 — latest model with context-aware logic
