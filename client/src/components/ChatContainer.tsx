@@ -8,8 +8,19 @@ interface ChatContainerProps {
   sendQuestion?: (question: string) => void;
 }
 
-const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) => {
+const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading, sendQuestion }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Function to handle clicking on suggested questions - if sendQuestion prop exists, use it
+  const handleQuestionClick = (question: string) => {
+    if (sendQuestion) {
+      // Call the sendQuestion function directly (auto-send)
+      sendQuestion(question);
+    } else {
+      // Fallback to old behavior - just populate the input
+      document.getElementById('message-input')?.setAttribute('value', question);
+    }
+  };
   
   // Function to format time in Kurdish
   const formatTime = (date: Date): string => {
@@ -69,34 +80,34 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) =>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5 relative z-10">
               <Button 
                 variant="outline"
-                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow transition-all text-sm text-right justify-between gap-2 h-auto"
-                onClick={() => document.getElementById('message-input')?.setAttribute('value', 'چۆن دەتوانم فێری زمانی کوردی بم؟')}
+                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow-md hover:scale-102 active:scale-98 transition-all text-sm text-right justify-between gap-2 h-auto group"
+                onClick={() => handleQuestionClick('چۆن دەتوانم فێری زمانی کوردی بم؟')}
               >
-                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">send</span>
                 <span>چۆن دەتوانم فێری زمانی کوردی بم؟</span>
               </Button>
               <Button 
                 variant="outline"
-                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow transition-all text-sm text-right justify-between gap-2 h-auto"
-                onClick={() => document.getElementById('message-input')?.setAttribute('value', 'چەند شوێنی سەرنجڕاکێش هەن لە کوردستان؟')}
+                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow-md hover:scale-102 active:scale-98 transition-all text-sm text-right justify-between gap-2 h-auto group"
+                onClick={() => handleQuestionClick('چەند شوێنی سەرنجڕاکێش هەن لە کوردستان؟')}
               >
-                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">send</span>
                 <span>چەند شوێنی سەرنجڕاکێش هەن لە کوردستان؟</span>
               </Button>
               <Button 
                 variant="outline"
-                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow transition-all text-sm text-right justify-between gap-2 h-auto"
-                onClick={() => document.getElementById('message-input')?.setAttribute('value', 'باسی کەش و هەوای هەولێر بکە')}
+                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow-md hover:scale-102 active:scale-98 transition-all text-sm text-right justify-between gap-2 h-auto group"
+                onClick={() => handleQuestionClick('باسی کەش و هەوای هەولێر بکە')}
               >
-                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">send</span>
                 <span>باسی کەش و هەوای هەولێر بکە</span>
               </Button>
               <Button 
                 variant="outline"
-                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow transition-all text-sm text-right justify-between gap-2 h-auto"
-                onClick={() => document.getElementById('message-input')?.setAttribute('value', 'چەند ڕێگایەک هەیە بۆ چێشت لێنانی دۆلمە؟')}
+                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow-md hover:scale-102 active:scale-98 transition-all text-sm text-right justify-between gap-2 h-auto group"
+                onClick={() => handleQuestionClick('چەند ڕێگایەک هەیە بۆ چێشت لێنانی دۆلمە؟')}
               >
-                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">send</span>
                 <span>چەند ڕێگایەک هەیە بۆ چێشت لێنانی دۆلمە؟</span>
               </Button>
             </div>
@@ -104,6 +115,26 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) =>
         </div>
       )}
 
+      {/* Loading indicator - shows only when there are messages but the AI is still thinking */}
+      {messages.length > 0 && isLoading && !messages[messages.length - 1].isStreaming && (
+        <div className="max-w-3xl mx-auto mb-6 message-appear">
+          <div className="flex">
+            <div className="ai-thinking">
+              <div className="flex items-center gap-2">
+                <div className="bg-gradient-to-r from-purple-400 to-violet-500 rounded-full h-5 w-5 flex items-center justify-center shadow-sm">
+                  <span className="material-icons text-white text-[12px]">psychology</span>
+                </div>
+                <div className="ai-thinking-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Render Messages */}
       {messages.map((message, index) => (
         <div key={index} className="max-w-3xl mx-auto mb-6 message-appear">
@@ -111,13 +142,25 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) =>
             // User Message
             <>
               <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-primary to-indigo-700 text-white rounded-2xl py-3 px-5 max-w-[85%] shadow-md border border-indigo-500">
+                <div className="bg-gradient-to-br from-violet-600 to-purple-700 text-white rounded-2xl py-3.5 px-5 max-w-[85%] shadow-md relative overflow-hidden">
+                  {/* Decorative top border */}
+                  <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-300/60 to-violet-300/60"></div>
+                  
+                  {/* User Icon */}
+                  <div className="flex items-center justify-end mb-1.5">
+                    <span className="text-xs font-medium text-violet-200">بەکارهێنەر</span>
+                    <div className="bg-white/20 rounded-full h-6 w-6 flex items-center justify-center ml-2 shadow-sm">
+                      <span className="material-icons text-white text-xs">person</span>
+                    </div>
+                  </div>
+                  
+                  {/* Message content */}
                   <p className="leading-relaxed">{message.content}</p>
                 </div>
               </div>
               <div className="flex justify-end mt-1.5">
                 <span className="text-xs text-gray-500 flex items-center">
-                  <span className="material-icons text-xs ml-1">person</span>
+                  <span className="material-icons text-purple-400 text-xs ml-1">schedule</span>
                   {formatTime(new Date(message.timestamp))}
                 </span>
               </div>
@@ -125,15 +168,35 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) =>
           ) : (
             // AI Response
             <>
-              <div className="flex">
-                <div className="bg-white border border-indigo-100 rounded-2xl py-3 px-5 max-w-[85%] shadow-md">
-                  <div className="leading-relaxed" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n\n/g, '<br/><br/>').replace(/\n/g, '<br/>') }} />
+              <div className="flex items-start">
+                <div className="bg-gradient-to-br from-purple-50 to-white border border-violet-100 rounded-2xl py-3.5 px-5 max-w-[85%] shadow-md relative overflow-hidden">
+                  {/* Decorative top border */}
+                  <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-violet-300 to-purple-500"></div>
+                  
+                  {/* AI Icon */}
+                  <div className="flex items-center mb-1.5">
+                    <div className="bg-gradient-to-r from-purple-400 to-violet-500 rounded-full h-6 w-6 flex items-center justify-center mr-2 shadow-sm">
+                      <span className="material-icons text-white text-xs">auto_awesome</span>
+                    </div>
+                    <span className="text-xs font-medium text-purple-700">زیرەکی دەستکردی قەڵا</span>
+                  </div>
+                  
+                  {/* Message content */}
+                  <div className="leading-relaxed text-gray-800" 
+                    dangerouslySetInnerHTML={{ 
+                      __html: message.content
+                        .replace(/\n\n/g, '<br/><br/>')
+                        .replace(/\n/g, '<br/>') 
+                    }} 
+                  />
+                  
+                  {/* Typing animation */}
                   {message.isStreaming && <span className="typing-animation"></span>}
                 </div>
               </div>
               <div className="flex mt-1.5">
                 <span className="text-xs text-gray-500 flex items-center">
-                  <span className="material-icons text-xs ml-1">castle</span>
+                  <span className="material-icons text-purple-400 text-xs ml-1">schedule</span>
                   {message.isStreaming ? 'ئێستا' : formatTime(new Date(message.timestamp))}
                 </span>
               </div>

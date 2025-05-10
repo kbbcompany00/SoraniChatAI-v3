@@ -53,10 +53,17 @@ const Home = () => {
         <InfoBanner onDismiss={handleDismissBanner} />
       )}
       
-      {/* Main chat area */}
+      {/* Main chat area with auto-send functionality for suggested questions */}
       <ChatContainer 
         messages={messages}
         isLoading={isLoading}
+        sendQuestion={(question) => {
+          setMessageInput(question);
+          // Use setTimeout to ensure the state is updated before sending
+          setTimeout(() => {
+            sendMessage();
+          }, 10);
+        }}
       />
       
       {/* Message input component */}

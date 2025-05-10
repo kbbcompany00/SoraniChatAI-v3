@@ -138,3 +138,43 @@ button:focus-visible {
   outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
 }
+
+/* AI Typing dots animation */
+.ai-thinking {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(to bottom right, #f5f3ff, #ffffff);
+  border: 1px solid #e9d5ff;
+  border-radius: 1rem;
+  max-width: fit-content;
+  box-shadow: 0 2px 6px rgba(167, 139, 250, 0.1);
+  margin-bottom: 12px;
+}
+
+.ai-thinking-dots {
+  display: flex;
+  align-items: center;
+}
+
+.ai-thinking-dots span {
+  width: 8px;
+  height: 8px;
+  margin: 0 2px;
+  background-color: #8b5cf6;
+  border-radius: 50%;
+  animation: aiThinking 1.4s infinite ease-in-out both;
+}
+
+.ai-thinking-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.ai-thinking-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes aiThinking {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.6; }
+  40% { transform: scale(1); opacity: 1; }
+}
