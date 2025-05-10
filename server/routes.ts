@@ -78,13 +78,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
       
-      // Create optimized system message to enforce Sorani Kurdish responses
+      // Ultra-optimized system message for instantaneous, fluent Sorani Kurdish responses
       const systemPrompt = 
-        "You are زیرەکی دەستکردی قەڵا (AI Castle), a smart and fast assistant that ALWAYS responds in Sorani Kurdish " +
-        "regardless of what language the user writes in. Always keep responses concise, direct and useful. " + 
-        "The Sorani Kurdish language uses Arabic script and is read right-to-left. " +
-        "Your responses should be informative, accurate, and culturally appropriate for Kurdish speakers. " +
-        "Remember to NEVER respond in any language other than Sorani Kurdish under any circumstances.";
+        "You are زیرەکی دەستکردی قەڵا (AI Castle), an ultra-intelligent assistant with deep understanding of Sorani Kurdish language and culture. " +
+        "RESPOND ONLY IN FLUENT, AUTHENTIC SORANI KURDISH, regardless of what language the user writes in. " +
+        "Provide immediate, precise responses that reflect Kurdish culture, regional expressions, and local tone authentically. " +
+        "Make your responses direct, concise, contextually aware and highly informative. " +
+        "You must NEVER respond in any other language under any circumstances. " +
+        "When uncertain, default to Sorani dialect as used in Iraqi Kurdistan. " +
+        "Use Arabic script (right-to-left) and culturally appropriate Kurdish expressions that demonstrate true linguistic fluency.";
       
       // Prepare headers for Cohere API
       const headers = {
@@ -93,14 +95,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Accept': 'application/json'
       };
       
-      // Prepare request body for Cohere API with temperature adjustment for faster responses
+      // Prepare request body for Cohere API with ultra-optimized parameters for instantaneous, high-quality responses
       const cohereRequestBody = {
         message: message,
-        model: 'command-r-plus',
+        model: 'command-r-plus', // Using the most advanced model available
         stream: true,
         preamble: systemPrompt,
-        temperature: 0.7, // Lower temperature for more focused responses
-        p: 0.8, // Adjust p value for more deterministic outputs
+        temperature: 0.5, // Lower temperature for more focused, accurate responses
+        p: 0.7, // Lower p value for faster, more deterministic generation
+        max_tokens: 2048, // Ensure sufficient token allocation for comprehensive answers
+        frequency_penalty: 0.2, // Reduce repetition for more natural flow
+        presence_penalty: 0.1, // Encourage topical diversity
       };
       
       // Make streaming request to Cohere API
@@ -149,34 +154,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           for (const line of lines) {
             if (line.includes('"text"')) {
-              try {
-                // Handle potential JSON parsing issues
-                let jsonString = line;
-                
-                // If JSON is malformed (doesn't end with closing brace), try to fix it
-                if (!jsonString.endsWith('}')) {
-                  jsonString += '}';
-                }
-                
-                const jsonLine = JSON.parse(jsonString);
-                if (jsonLine.text) {
-                  completeResponse += jsonLine.text;
-                  res.write(`data: ${jsonLine.text}\n\n`);
-                }
-              } catch (e) {
-                // If JSON parsing fails, try to extract text with regex
-                try {
-                  const textMatch = line.match(/"text":"([^"]*)"/);
-                  if (textMatch && textMatch[1]) {
-                    const text = textMatch[1];
-                    completeResponse += text;
-                    res.write(`data: ${text}\n\n`);
-                  } else {
-                    console.error('Error parsing JSON line:', e);
-                  }
-                } catch (regexError) {
-                  console.error('Error with regex extraction:', regexError);
-                }
+              // Use regex to extract text directly - more robust than JSON parsing
+              const textMatch = line.match(/"text":"([^"]*)"/);
+              if (textMatch && textMatch[1]) {
+                const text = textMatch[1];
+                completeResponse += text;
+                res.write(`data: ${text}\n\n`);
+              } else {
+                console.error('Could not extract text with regex from line:', line);
               }
             }
           }

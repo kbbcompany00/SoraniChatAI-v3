@@ -10,18 +10,6 @@ const Home = () => {
   const [showBanner, setShowBanner] = useState(true);
   const { toast } = useToast();
   
-  // Load banner state from localStorage
-  useEffect(() => {
-    const isBannerDismissed = localStorage.getItem('infoBannerDismissed') === 'true';
-    setShowBanner(!isBannerDismissed);
-  }, []);
-
-  // Handle banner dismissal
-  const handleDismissBanner = () => {
-    setShowBanner(false);
-    localStorage.setItem('infoBannerDismissed', 'true');
-  };
-
   // Use our chat hook to manage state and functionality
   const { 
     messages, 
@@ -32,7 +20,7 @@ const Home = () => {
     isNonKurdishDetected,
     clearMessages
   } = useChat();
-
+  
   // Handle clearing the chat
   const handleClearChat = useCallback(() => {
     clearMessages();
@@ -42,6 +30,18 @@ const Home = () => {
       duration: 3000,
     });
   }, [clearMessages, toast]);
+  
+  // Load banner state from localStorage
+  useEffect(() => {
+    const isBannerDismissed = localStorage.getItem('infoBannerDismissed') === 'true';
+    setShowBanner(!isBannerDismissed);
+  }, []);
+
+  // Handle banner dismissal
+  const handleDismissBanner = useCallback(() => {
+    setShowBanner(false);
+    localStorage.setItem('infoBannerDismissed', 'true');
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">
