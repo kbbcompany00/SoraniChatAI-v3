@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { Message } from '@/types';
+import { Button } from "@/components/ui/button";
 
 interface ChatContainerProps {
   messages: Message[];
   isLoading: boolean;
+  sendQuestion?: (question: string) => void;
 }
 
 const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) => {
@@ -39,41 +41,64 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) =>
       {/* Welcome Message */}
       {messages.length === 0 && (
         <div className="max-w-3xl mx-auto mb-8 message-appear">
-          <div className="bg-gradient-to-br from-white to-indigo-50 rounded-lg shadow-lg border border-indigo-100 p-5 md:p-7">
-            <div className="flex items-center mb-4">
-              <span className="material-icons text-primary text-2xl ml-3">castle</span>
-              <h2 className="text-xl font-bold text-gray-800">بەخێربێیت بۆ زیرەکی دەستکردی قەڵا!</h2>
+          <div className="bg-gradient-to-br from-white to-violet-50 rounded-2xl shadow-xl border border-violet-100 p-6 md:p-8 relative overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-400 via-purple-500 to-indigo-500"></div>
+            <div className="absolute -bottom-8 -right-8 opacity-5 rotate-12">
+              <span className="material-icons text-9xl text-purple-900">castle</span>
             </div>
-            <p className="text-gray-700 mb-4 leading-relaxed">دەتوانیت پرسیارم لێ بکەیت دەربارەی هەر بابەتێک. من بە کوردی سۆرانی وەڵامت دەدەمەوە بە شێوەیەکی خێرا و زیرەکانە.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
-              <button 
-                className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 py-3 px-4 rounded-lg transition-colors text-sm text-right flex items-center justify-between group"
+            
+            <div className="flex items-center mb-4 relative z-10">
+              <div className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-full p-2.5 ml-3 shadow-lg">
+                <span className="material-icons text-white text-2xl">smart_toy</span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-800 to-purple-800">
+                  بەخێربێیت بۆ زیرەکی دەستکردی قەڵا!
+                </h2>
+                <p className="text-sm text-purple-600">هەموو پرسیارێکت بە کوردی سۆرانی وەڵام دەدرێتەوە</p>
+              </div>
+            </div>
+            
+            <p className="text-gray-700 mb-5 leading-relaxed relative z-10">
+              دەتوانیت پرسیارم لێ بکەیت دەربارەی هەر بابەتێک. من بە کوردی سۆرانی وەڵامت دەدەمەوە بە شێوەیەکی خێرا و زیرەکانە، جا پرسیارەکەت بە هەر زمانێک بێت.
+            </p>
+            
+            <h3 className="text-lg font-bold text-purple-800 mb-3">چەند پرسیارێک بۆ دەستپێکردن:</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5 relative z-10">
+              <Button 
+                variant="outline"
+                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow transition-all text-sm text-right justify-between gap-2 h-auto"
                 onClick={() => document.getElementById('message-input')?.setAttribute('value', 'چۆن دەتوانم فێری زمانی کوردی بم؟')}
               >
-                <span className="material-icons text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
                 <span>چۆن دەتوانم فێری زمانی کوردی بم؟</span>
-              </button>
-              <button 
-                className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 py-3 px-4 rounded-lg transition-colors text-sm text-right flex items-center justify-between group"
+              </Button>
+              <Button 
+                variant="outline"
+                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow transition-all text-sm text-right justify-between gap-2 h-auto"
                 onClick={() => document.getElementById('message-input')?.setAttribute('value', 'چەند شوێنی سەرنجڕاکێش هەن لە کوردستان؟')}
               >
-                <span className="material-icons text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
                 <span>چەند شوێنی سەرنجڕاکێش هەن لە کوردستان؟</span>
-              </button>
-              <button 
-                className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 py-3 px-4 rounded-lg transition-colors text-sm text-right flex items-center justify-between group"
+              </Button>
+              <Button 
+                variant="outline"
+                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow transition-all text-sm text-right justify-between gap-2 h-auto"
                 onClick={() => document.getElementById('message-input')?.setAttribute('value', 'باسی کەش و هەوای هەولێر بکە')}
               >
-                <span className="material-icons text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
                 <span>باسی کەش و هەوای هەولێر بکە</span>
-              </button>
-              <button 
-                className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 py-3 px-4 rounded-lg transition-colors text-sm text-right flex items-center justify-between group"
+              </Button>
+              <Button 
+                variant="outline"
+                className="bg-white/80 hover:bg-purple-50 text-purple-800 border-purple-200 py-4 px-4 rounded-xl shadow-sm hover:shadow transition-all text-sm text-right justify-between gap-2 h-auto"
                 onClick={() => document.getElementById('message-input')?.setAttribute('value', 'چەند ڕێگایەک هەیە بۆ چێشت لێنانی دۆلمە؟')}
               >
-                <span className="material-icons text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span className="material-icons text-purple-500 text-lg opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
                 <span>چەند ڕێگایەک هەیە بۆ چێشت لێنانی دۆلمە؟</span>
-              </button>
+              </Button>
             </div>
           </div>
         </div>

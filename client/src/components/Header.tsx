@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
+import SettingsDialog from './SettingsDialog';
 
 interface HeaderProps {
   onClearChat?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onClearChat }) => {
+  const [showSettings, setShowSettings] = useState(false);
+  
   // Function to refresh the page and clear the chat
   const handleClearChat = () => {
     if (onClearChat) {
@@ -15,35 +18,53 @@ const Header: React.FC<HeaderProps> = ({ onClearChat }) => {
     }
   };
 
+  // Function to open settings dialog
+  const openSettings = () => {
+    setShowSettings(true);
+  };
+
   return (
-    <header className="bg-gradient-to-l from-indigo-600 to-primary py-4 px-6 flex items-center justify-between shadow-md">
+    <header className="sticky top-0 z-40 bg-gradient-to-r from-violet-600 via-purple-600 to-secondary py-4 px-6 flex items-center justify-between shadow-xl backdrop-blur-sm bg-opacity-90">
       <div className="flex items-center">
-        <span className="material-icons text-white ml-3 text-2xl">castle</span>
-        <h1 className="text-xl font-bold text-white">زیرەکی دەستکردی قەڵا</h1>
+        <div className="relative">
+          <span className="material-icons text-white ml-3 text-3xl animate-pulse">castle</span>
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full animate-ping"></span>
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-wide">زیرەکی دەستکردی قەڵا</h1>
+          <p className="text-xs text-indigo-200 -mt-1">وەڵامی زیرەکانە بە کوردی سۆرانی</p>
+        </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <button 
           type="button" 
-          className="p-2 rounded-full hover:bg-indigo-700 transition-colors relative group" 
+          className="p-2.5 rounded-full hover:bg-white/20 transition-all duration-300 relative group" 
           aria-label="Clear chat"
           onClick={handleClearChat}
         >
           <span className="material-icons text-white">refresh</span>
-          <span className="absolute -bottom-9 right-0 bg-white text-indigo-800 text-xs py-1 px-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <span className="absolute -bottom-10 right-0 bg-white text-indigo-800 text-xs py-1.5 px-3 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap transform group-hover:-translate-y-1 duration-300">
             پاککردنەوەی چات
           </span>
         </button>
         <button 
           type="button" 
-          className="p-2 rounded-full hover:bg-indigo-700 transition-colors relative group" 
+          className="p-2.5 rounded-full hover:bg-white/20 transition-all duration-300 relative group" 
           aria-label="Settings"
+          onClick={openSettings}
         >
           <span className="material-icons text-white">settings</span>
-          <span className="absolute -bottom-9 right-0 bg-white text-indigo-800 text-xs py-1 px-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="absolute -bottom-10 right-0 bg-white text-indigo-800 text-xs py-1.5 px-3 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap transform group-hover:-translate-y-1 duration-300">
             ڕێکخستنەکان
           </span>
         </button>
       </div>
+      
+      {/* Settings Dialog */}
+      <SettingsDialog 
+        open={showSettings} 
+        onOpenChange={setShowSettings} 
+      />
     </header>
   );
 };

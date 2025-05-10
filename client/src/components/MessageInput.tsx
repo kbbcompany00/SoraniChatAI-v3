@@ -51,15 +51,18 @@ const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   return (
-    <footer className="bg-white border-t border-indigo-100 p-4 shadow-lg">
+    <footer className="sticky bottom-0 z-20 p-4 bg-white/80 backdrop-blur-md border-t border-purple-100 shadow-xl">
       <div className="max-w-3xl mx-auto">
         <form className="flex items-center gap-3" onSubmit={handleSubmit}>
           <div className="relative flex-1">
+            <div className="absolute right-5 top-1/2 transform -translate-y-1/2 text-purple-400">
+              <span className="material-icons">message</span>
+            </div>
             <input 
               type="text" 
               id="message-input"
               ref={inputRef}
-              className="w-full border border-indigo-200 rounded-full py-4 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-primary focus:border-indigo-300 shadow-sm bg-indigo-50/30"
+              className="w-full border border-purple-200 rounded-2xl py-4 pl-12 pr-14 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-md bg-white/90 transition-all duration-300"
               placeholder="پرسیارێک بنووسە... (دەتوانیت بە هەر زمانێک بنووسیت)"
               value={value}
               onChange={(e) => onChange(e.target.value)}
@@ -69,7 +72,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             {value && (
               <button 
                 type="button" 
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600" 
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors" 
                 onClick={clearInput}
               >
                 <span className="material-icons">clear</span>
@@ -78,7 +81,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           </div>
           <button 
             type="submit" 
-            className="bg-gradient-to-r from-indigo-600 to-primary hover:from-indigo-700 hover:to-indigo-600 text-white rounded-full p-3.5 flex items-center justify-center transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl p-3.5 flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-purple-200/50 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
             disabled={isSubmitDisabled}
             aria-label="ناردن"
           >
@@ -88,8 +91,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
         {/* Language Detection Indicator */}
         {isNonKurdishDetected && (
-          <div className="flex items-center justify-center mt-2.5 text-xs text-indigo-600 gap-1.5 bg-indigo-50 py-1.5 px-3 rounded-full mx-auto w-fit">
-            <span className="material-icons text-xs">translate</span>
+          <div className="flex items-center justify-center mt-3 text-xs text-purple-700 gap-1.5 bg-purple-50 py-2 px-4 rounded-lg mx-auto w-fit shadow-sm border border-purple-100 animate-fadeIn">
+            <span className="material-icons text-sm text-purple-500">translate</span>
             <p>زمانی ئینگلیزی ناسرایەوە، وەڵامەکەت بە کوردی دەبێت</p>
           </div>
         )}
