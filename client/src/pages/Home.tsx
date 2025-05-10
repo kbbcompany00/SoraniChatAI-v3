@@ -86,8 +86,9 @@ const Home = () => {
           onClick={toggleImageEmbedding}
           variant="outline"
           className="text-sm bg-white border-violet-200 text-violet-700 hover:bg-violet-50"
+          dir="rtl"
         >
-          <span className="material-icons mr-1 text-sm">
+          <span className="material-icons ml-1 text-sm">
             {showImageEmbedding ? 'chat' : 'image'}
           </span>
           {showImageEmbedding ? 'گەڕانەوە بۆ چات' : 'شیکردنەوەی وێنە'}

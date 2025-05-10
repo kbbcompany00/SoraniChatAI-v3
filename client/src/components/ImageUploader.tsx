@@ -101,7 +101,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageCaptured, isLoadin
   };
 
   return (
-    <div className="image-uploader mb-4 p-4 bg-violet-50 rounded-xl border border-violet-100">
+    <div className="image-uploader mb-4 p-4 bg-violet-50 rounded-xl border border-violet-100" dir="rtl">
       <h3 className="text-lg font-medium text-violet-800 mb-2">شیکردنەوەی وێنە</h3>
       <p className="text-sm text-gray-600 mb-3">وێنەیەک هەڵبژێرە یان وێنەیەک بگرە بۆ دەستکەوتنی فێکتەری شیکردنەوە</p>
       
@@ -110,13 +110,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageCaptured, isLoadin
         <div className="preview-container mb-3 relative">
           <img 
             src={previewUrl} 
-            alt="Preview" 
+            alt="پێشبینی" 
             className="max-h-64 max-w-full mx-auto rounded-lg border border-violet-200"
           />
           <button 
             onClick={clearImage}
-            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
+            className="absolute top-2 left-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
             disabled={isLoading}
+            aria-label="سڕینەوە"
           >
             <span className="material-icons text-sm">close</span>
           </button>
@@ -137,14 +138,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageCaptured, isLoadin
               onClick={captureImage}
               className="bg-purple-600 text-white hover:bg-purple-700"
             >
-              <span className="material-icons mr-1 text-sm">photo_camera</span> وێنە بگرە
+              <span className="material-icons ml-1 text-sm">photo_camera</span> وێنە بگرە
             </Button>
             <Button 
               onClick={stopCamera} 
               variant="outline"
               className="border-red-300 text-red-600 hover:bg-red-50"
             >
-              <span className="material-icons mr-1 text-sm">close</span> داخستن
+              <span className="material-icons ml-1 text-sm">close</span> داخستن
             </Button>
           </div>
         </div>
@@ -152,13 +153,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageCaptured, isLoadin
 
       {/* Action buttons */}
       {!isCapturing && !previewUrl && (
-        <div className="upload-options flex flex-wrap gap-2">
+        <div className="upload-options flex flex-wrap gap-2 justify-center">
           <Button 
             onClick={handleUploadClick} 
             className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white"
             disabled={isLoading}
           >
-            <span className="material-icons mr-1 text-sm">upload</span> هەڵبژاردنی وێنە
+            <span className="material-icons ml-1 text-sm">upload</span> هەڵبژاردنی وێنە
           </Button>
           <Button 
             onClick={startCamera} 
@@ -166,7 +167,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageCaptured, isLoadin
             className="border-violet-300 text-violet-700 hover:bg-violet-100"
             disabled={isLoading}
           >
-            <span className="material-icons mr-1 text-sm">photo_camera</span> کامێرا
+            <span className="material-icons ml-1 text-sm">photo_camera</span> کامێرا
           </Button>
           <input
             type="file"
@@ -179,9 +180,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageCaptured, isLoadin
       )}
 
       {previewUrl && (
-        <div className="mt-2 text-sm text-violet-600 flex items-center">
-          <span className="material-icons text-violet-500 mr-1 text-sm">check_circle</span>
+        <div className="mt-2 text-sm text-violet-600 flex items-center justify-end">
           وێنە بەسەرکەوتوویی ئامادەیە بۆ شیکردنەوە
+          <span className="material-icons text-violet-500 mr-1 ml-1 text-sm">check_circle</span>
         </div>
       )}
     </div>

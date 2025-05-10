@@ -17,35 +17,7 @@ const initCohere = () => {
   };
 };
 
-// Middleware to handle JSON requests with large payloads (for images)
-const jsonBodyParser = (req: Request, res: Response, next: NextFunction) => {
-  // Skip if not a JSON request
-  if (!req.headers['content-type']?.includes('application/json')) {
-    return next();
-  }
-
-  let data = '';
-  req.on('data', chunk => {
-    data += chunk;
-  });
-
-  req.on('end', () => {
-    try {
-      if (data) {
-        req.body = JSON.parse(data);
-      }
-      next();
-    } catch (error) {
-      console.error('Error parsing JSON body:', error);
-      res.status(400).json({ message: 'Invalid JSON body' });
-    }
-  });
-
-  req.on('error', (error) => {
-    console.error('Error processing request:', error);
-    res.status(500).json({ message: 'Error processing request' });
-  });
-};
+// We will use Express's built-in body parser instead with increased limits
 
 // Get or create a session ID
 const getOrCreateSessionId = async (req: Request): Promise<string> => {
@@ -68,8 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize Cohere client
   const { apiKey } = initCohere();
   
-  // Register custom body parser for image embedding
-  app.use('/api/embed/image', jsonBodyParser);
+  // Using Express's built-in body parser with increased limits - configured in index.ts
   
   // Get chat history
   app.get('/api/chat/history', async (req: Request, res: Response) => {
