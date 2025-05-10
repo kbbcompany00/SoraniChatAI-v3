@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertMessageSchema } from "@shared/schema";
@@ -15,6 +15,36 @@ const initCohere = () => {
   return {
     apiKey
   };
+};
+
+// Middleware to handle JSON requests with large payloads (for images)
+const jsonBodyParser = (req: Request, res: Response, next: NextFunction) => {
+  // Skip if not a JSON request
+  if (!req.headers['content-type']?.includes('application/json')) {
+    return next();
+  }
+
+  let data = '';
+  req.on('data', chunk => {
+    data += chunk;
+  });
+
+  req.on('end', () => {
+    try {
+      if (data) {
+        req.body = JSON.parse(data);
+      }
+      next();
+    } catch (error) {
+      console.error('Error parsing JSON body:', error);
+      res.status(400).json({ message: 'Invalid JSON body' });
+    }
+  });
+
+  req.on('error', (error) => {
+    console.error('Error processing request:', error);
+    res.status(500).json({ message: 'Error processing request' });
+  });
 };
 
 // Get or create a session ID
@@ -38,6 +68,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize Cohere client
   const { apiKey } = initCohere();
   
+  // Register custom body parser for image embedding
+  app.use('/api/embed/image', jsonBodyParser);
+  
   // Get chat history
   app.get('/api/chat/history', async (req: Request, res: Response) => {
     try {
@@ -51,6 +84,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching chat history:', error);
       res.status(500).json({ message: 'Failed to fetch chat history' });
+    }
+  });
+  
+  // Image embedding endpoint
+  app.post('/api/embed/image', async (req: Request, res: Response) => {
+    try {
+      const { image } = req.body;
+      
+      if (!image) {
+        return res.status(400).json({ message: 'Image data is required' });
+      }
+      
+      // Validate image base64 format
+      if (!image.startsWith('data:image/')) {
+        return res.status(400).json({ 
+          message: 'Invalid image format - must be a base64 data URL with MIME type' 
+        });
+      }
+      
+      // Prepare headers for Cohere API
+      const headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      
+      // Prepare request body for Cohere /v2/embed API with image input
+      const embedRequestBody = {
+        model: 'embed-v4.0',
+        input_type: 'image',
+        embedding_types: ['float'],
+        images: [image],
+      };
+      
+      console.log('Making image embedding request to Cohere...');
+      
+      // Make request to Cohere API
+      const embedResponse = await fetch('https://api.cohere.com/v2/embed', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(embedRequestBody)
+      });
+      
+      if (!embedResponse.ok) {
+        const errorText = await embedResponse.text();
+        console.error(`Cohere API error: ${embedResponse.status} ${errorText}`);
+        return res.status(embedResponse.status).json({ 
+          message: `Error from embedding service: ${errorText}` 
+        });
+      }
+      
+      // Parse the response
+      const embedResult = await embedResponse.json();
+      
+      // Extract the embedding vector
+      const embeddings = embedResult.embeddings;
+      
+      if (!embeddings || !embeddings.length) {
+        return res.status(500).json({ message: 'No embedding vectors received from API' });
+      }
+      
+      // Return just the float embedding (the first one in the array)
+      console.log('Successfully received image embedding vector');
+      res.json({ embedding: embeddings[0] });
+      
+    } catch (error) {
+      console.error('Error in image embedding:', error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : 'Error processing image embedding' 
+      });
     }
   });
   
