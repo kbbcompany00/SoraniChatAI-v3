@@ -231,18 +231,67 @@ function normalizeKurdishText(text: string): string {
     .replace(/ك/g, 'ک');
 }
 
+// Initialize the performance optimization system on module load
+(function initializeKnowledgeOptimizations() {
+  // Index all patterns for fast lookup
+  indexPatterns(qalaInstitute);
+  
+  // Preload the most common queries into the prefetch cache
+  qalaInstitute.forEach((entry) => {
+    // For each entry, take the first pattern as the canonical form
+    if (entry.patterns.length > 0) {
+      prefetchCache.set(normalizeKurdishText(entry.patterns[0]), entry);
+    }
+  });
+  
+  console.log(`Optimized ${qalaInstitute.length} knowledge entries with ${patternMap.size} indexed patterns`);
+})();
+
 /**
- * Checks if the user message contains any of the patterns from the knowledge base
+ * Ultra-fast knowledge matching system with caching
  * @param message User message to check
  * @returns The matching knowledge entry or undefined if no match found
  */
 export function findMatchingKnowledge(message: string): KnowledgeEntry | undefined {
   const normalizedMessage = normalizeKurdishText(message);
   
-  // Check each entry in the knowledge base
+  // First check pattern cache for exact matches (fastest path)
+  const cachedResult = patternMatchCache.get(normalizedMessage);
+  if (cachedResult !== undefined) {
+    return cachedResult || undefined; // Convert null to undefined if no match was previously found
+  }
+  
+  // Try prefetch cache for common queries
+  const prefetchedResult = prefetchCache.get(normalizedMessage);
+  if (prefetchedResult) {
+    patternMatchCache.set(normalizedMessage, prefetchedResult);
+    return prefetchedResult;
+  }
+  
+  // For very short queries, try direct pattern map lookup (O(1))
+  const messageTokens = tokenize(normalizedMessage);
+  if (messageTokens.length === 1) {
+    const token = messageTokens[0];
+    const matchingIndices = patternMap.get(token);
+    if (matchingIndices && matchingIndices.length > 0) {
+      // If multiple matches, return the one with highest priority or first one
+      let bestMatch = qalaInstitute[matchingIndices[0]];
+      for (let i = 1; i < matchingIndices.length; i++) {
+        const currentEntry = qalaInstitute[matchingIndices[i]];
+        if ((currentEntry.priority || 0) > (bestMatch.priority || 0)) {
+          bestMatch = currentEntry;
+        }
+      }
+      patternMatchCache.set(normalizedMessage, bestMatch);
+      return bestMatch;
+    }
+  }
+  
+  // Fallback to the original algorithm with some optimizations
   for (const entry of qalaInstitute) {
     // If any pattern matches the message, return this entry
     if (entry.patterns.some(pattern => normalizedMessage.includes(normalizeKurdishText(pattern)))) {
+      patternMatchCache.set(normalizedMessage, entry);
       return entry;
     }
   }
@@ -252,8 +301,11 @@ export function findMatchingKnowledge(message: string): KnowledgeEntry | undefin
       normalizedMessage.includes('قه‌ڵا') || 
       normalizedMessage.includes('قلا') ||
       normalizedMessage.includes('قەلا')) {
+    patternMatchCache.set(normalizedMessage, qalaInstitute[0]);
     return qalaInstitute[0]; // Return the general information entry (first entry)
   }
   
+  // No match found - cache the negative result to avoid re-processing
+  patternMatchCache.set(normalizedMessage, null);
   return undefined;
 }

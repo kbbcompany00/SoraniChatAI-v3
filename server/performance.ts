@@ -355,13 +355,13 @@ class PrefetchCache<T> {
    */
   preload(items: Map<string, T> | Record<string, T>): void {
     if (items instanceof Map) {
-      for (const [key, value] of items.entries()) {
+      items.forEach((value, key) => {
         this.cache.set(key, value);
-      }
+      });
     } else {
-      for (const [key, value] of Object.entries(items)) {
+      Object.entries(items).forEach(([key, value]) => {
         this.cache.set(key, value);
-      }
+      });
     }
   }
   
@@ -381,6 +381,13 @@ class PrefetchCache<T> {
    */
   set(key: string, value: T): void {
     this.cache.set(key, value);
+  }
+  
+  /**
+   * Clear all items from the cache
+   */
+  clear(): void {
+    this.cache.clear();
   }
   
   /**

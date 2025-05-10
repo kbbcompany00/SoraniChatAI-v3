@@ -4,6 +4,10 @@ import { storage } from "./storage";
 import { insertMessageSchema } from "@shared/schema";
 import { nanoid } from "nanoid";
 import { findMatchingKnowledge } from "./knowledge-base";
+import { PerformanceTimer, workerPool } from "./performance";
+import { refreshKnowledgeBase, getSyncStats } from "./sync-manager";
+import { throttledRequest, getThrottlingStats } from "./request-throttler";
+import { streamingChatCompletion, processStreamingResponse } from "./cohere-service";
 
 // Function to init Cohere client with API key from environment variables
 const initCohere = () => {
@@ -219,17 +223,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        // Send the response in chunks to simulate streaming, which provides a better UX
-        const chunks = completeResponse.split('\n');
-        for (const chunk of chunks) {
-          // Only send non-empty chunks
-          if (chunk.trim()) {
-            res.write(`data: ${chunk}\n\n`);
-            
-            // Small delay to simulate realistic typing/streaming
-            await new Promise(resolve => setTimeout(resolve, 100));
+        // Import optimized streaming utilities
+        const { prepareStreamingChunks, workerPool, PerformanceTimer } = require('./performance');
+        
+        // Create performance timer for tracking response times
+        const timer = new PerformanceTimer();
+        
+        // Prepare optimized chunks for ultra-fast delivery
+        // This preserves the same output format but with optimized delivery
+        const chunks = prepareStreamingChunks(completeResponse);
+        timer.mark('chunksPrepped');
+        
+        // Use an adaptive timing algorithm that starts fast and adjusts based on content length
+        // This makes shorter responses appear almost instantly while longer ones use a natural pace
+        const baseDelay = 10; // Ultra-fast base delay in ms (10x faster than original)
+        const adaptiveDelayFactor = Math.max(1, Math.min(5, chunks.length / 10)); // Scale based on content length
+        const adaptiveDelay = baseDelay / adaptiveDelayFactor; // Shorter responses = less delay
+        
+        // Track response size for analytics
+        let responseSizeBytes = 0;
+        
+        // Use parallel worker processing for preparing the next chunks while streaming current ones
+        let chunkIndex = 0;
+        const chunkBatchSize = 5; // Process chunks in small batches for efficiency
+        
+        while (chunkIndex < chunks.length) {
+          // Process a batch of chunks in parallel
+          const batchEnd = Math.min(chunkIndex + chunkBatchSize, chunks.length);
+          const batchPromises = [];
+          
+          for (let i = chunkIndex; i < batchEnd; i++) {
+            const chunk = chunks[i];
+            batchPromises.push((async (chunkText, idx) => {
+              if (chunkText.trim()) {
+                // Calculate adaptive delay based on chunk position
+                // First chunks appear instantly, later chunks get slightly more delay for readability
+                const positionFactor = Math.min(1, idx / chunks.length);
+                const chunkDelay = adaptiveDelay * (1 + positionFactor);
+                
+                // Small delay to simulate natural typing but much faster than before
+                await new Promise(resolve => setTimeout(resolve, chunkDelay));
+                
+                // Write the chunk as SSE data
+                const dataChunk = `data: ${chunkText}\n\n`;
+                responseSizeBytes += dataChunk.length;
+                res.write(dataChunk);
+              }
+            })(chunk, i));
           }
+          
+          // Wait for all chunks in this batch to be processed
+          await Promise.all(batchPromises);
+          chunkIndex = batchEnd;
         }
+        
+        timer.mark('streamingComplete');
+        console.log(`Response delivered in ${timer.elapsed()}ms, ${responseSizeBytes} bytes, ${chunks.length} chunks`);
         
         // Save the assistant's complete response to storage
         await storage.createMessage({
