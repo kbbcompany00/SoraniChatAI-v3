@@ -339,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     // Remove any special character separators that make text unusable
                     .replace(/([^\s])\\([a-zA-Z])/g, '$1$2')
                     // Handle Kurdish characters by removing quotes
-                    .replace(/("ە"|"ڕ"|"ێ"|"ۆ"|"،"|"ن")/g, function(m) { return m.replace(/"/g, ''); });
+                    .replace(/"([ەڕێۆ،ن])"/g, '$1');
                   
                   completeResponse += cleanText;
                   res.write(`data: ${cleanText}\n\n`);

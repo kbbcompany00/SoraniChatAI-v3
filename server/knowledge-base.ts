@@ -17,6 +17,13 @@ export const qalaInstitute: KnowledgeEntry[] = [
       "پەیمانگەی قەڵا",
       "پەیمانگای قەڵا",
       "قەڵا",
+      "پەیمانگە",
+      "ناحکومی",
+      "زانیاری قەڵا",
+      "قەڵا چییە",
+      "دەربارەی پەیمانگەی قەڵا",
+      "دەربارەی قەڵا",
+      "زانیاری پەیمانگە",
     ],
     response: `✔️پەیمانگەی قـەڵای ناحکومی؛ یەکەم و باشترین و چالاکترین پەیمانگەی ئەهلییە لە سنووری ئیدارەی گەرمیانداو بەشەکانی:
 ✅ کـارگێڕی و ژمێریاری
@@ -47,7 +54,13 @@ export const qalaInstitute: KnowledgeEntry[] = [
       "بەشەکانی پەیمانگە", 
       "بەشەکانی قەڵا",
       "خوێندن لە قەڵا",
-      "خوێندنی قەڵا"
+      "خوێندنی قەڵا",
+      "بەشەکان",
+      "خوێندن چی هەیە",
+      "خوێندنی چی هەیە",
+      "بەشەکانی پەیمانگا",
+      "بەشەکانی خوێندن",
+      "دەتوانم چی بخوێنم"
     ],
     response: `پەیمانگەی قـەڵای ناحکومی ئەم بەشانەی هەیە:
 ✅ کـارگێڕی و ژمێریاری
@@ -105,6 +118,68 @@ export const qalaInstitute: KnowledgeEntry[] = [
   },
   {
     patterns: [
+      "کۆمپیوتەر",
+      "بەشی کۆمپیوتەر",
+      "خوێندنی کۆمپیوتەر",
+      "زانیاری بەشی کۆمپیوتەر",
+      "ای تی",
+      "IT",
+      "کۆمپیوتەر چییە"
+    ],
+    response: `بەشی کۆمپیوتەر لە پەیمانگەی قەڵای ناحکومی:
+
+✅ بەشی کۆمپیوتەر لە پەیمانگەی قەڵا دەرفەتێکی باشە بۆ فێربوونی تەکنەلۆجیای سەردەم.
+✅ خوێندکاران فێری پڕۆگرامینگ، نێتۆرک، وێبسایت، هاردوێر، و سۆفتوێر دەبن.
+✅ بڕوانامەی دبلۆمی باوەڕپێکراوی وەزارەتی پەروەردەی هەرێمی کوردستان بەدەست دەهێنن.
+
+بۆ زانیاری زیاتر پەیوەندی بکەن بە:
+☎️07705009002
+`
+  },
+  {
+    patterns: [
+      "ژمێریاری",
+      "کارگێری",
+      "کارگێڕی",
+      "بەشی کارگێڕی",
+      "بەشی ژمێریاری",
+      "خوێندنی کارگێڕی",
+      "خوێندنی ژمێریاری",
+      "ئیدارە"
+    ],
+    response: `بەشی کارگێڕی و ژمێریاری لە پەیمانگەی قەڵای ناحکومی:
+
+✅ بەشی کارگێڕی و ژمێریاری دەرفەتێکی گرنگە بۆ فێربوونی بەڕێوەبردن و دارایی.
+✅ خوێندکاران فێری سیستەمی ژمێریاری، بەڕێوەبردنی دارایی، پلاندانانی کارگێڕی و چەندین بابەتی گرنگی تر دەبن.
+✅ بڕوانامەی دبلۆمی باوەڕپێکراوی وەزارەتی پەروەردەی هەرێمی کوردستان بەدەست دەهێنن.
+
+بۆ زانیاری زیاتر پەیوەندی بکەن بە:
+☎️07705009002
+`
+  },
+  {
+    patterns: [
+      "نەوت",
+      "پیترۆڵ", 
+      "پێتڕۆڵ",
+      "گاز",
+      "بەشی نەوت",
+      "بەشی گاز",
+      "بەشی پێتڕۆڵ",
+      "خوێندنی نەوت"
+    ],
+    response: `بەشی گاز و پێتڕۆڵ (نەوت) لە پەیمانگەی قەڵای ناحکومی:
+
+✅ بەشی گاز و پێتڕۆڵ یەکێکە لە بەشە گرنگەکانی پەیمانگەی قەڵا.
+✅ خوێندکاران فێری تەکنەلۆجیای نەوت و گاز، دۆزینەوە، بەرهەمهێنان و چەندین بابەتی پەیوەندیدار دەبن.
+✅ بڕوانامەی دبلۆمی باوەڕپێکراوی وەزارەتی پەروەردەی هەرێمی کوردستان بەدەست دەهێنن.
+
+بۆ زانیاری زیاتر پەیوەندی بکەن بە:
+☎️07705009002
+`
+  },
+  {
+    patterns: [
       "مەرجەکانی وەرگرتن",
       "پێداویستیەکانی وەرگرتن",
       "چۆن وەردەگیرێم"
@@ -132,15 +207,43 @@ https://www.facebook.com/share/1AH7TPx4T6/`
  * @param message User message to check
  * @returns The matching knowledge entry or undefined if no match found
  */
+/**
+ * Normalize Kurdish text to improve pattern matching
+ * This handles common variations in Kurdish spelling and characters
+ */
+function normalizeKurdishText(text: string): string {
+  return text
+    .trim()
+    .toLowerCase()
+    // Normalize some common Kurdish character variations
+    .replace(/ه‌/g, 'ە')
+    .replace(/ھ/g, 'ە')
+    .replace(/ي/g, 'ی')
+    .replace(/ك/g, 'ک');
+}
+
+/**
+ * Checks if the user message contains any of the patterns from the knowledge base
+ * @param message User message to check
+ * @returns The matching knowledge entry or undefined if no match found
+ */
 export function findMatchingKnowledge(message: string): KnowledgeEntry | undefined {
-  const normalizedMessage = message.trim().toLowerCase();
+  const normalizedMessage = normalizeKurdishText(message);
   
   // Check each entry in the knowledge base
   for (const entry of qalaInstitute) {
     // If any pattern matches the message, return this entry
-    if (entry.patterns.some(pattern => normalizedMessage.includes(pattern.toLowerCase()))) {
+    if (entry.patterns.some(pattern => normalizedMessage.includes(normalizeKurdishText(pattern)))) {
       return entry;
     }
+  }
+  
+  // If no direct match is found, check for general mentions of "Qala"
+  if (normalizedMessage.includes('قەڵا') || 
+      normalizedMessage.includes('قه‌ڵا') || 
+      normalizedMessage.includes('قلا') ||
+      normalizedMessage.includes('قەلا')) {
+    return qalaInstitute[0]; // Return the general information entry (first entry)
   }
   
   return undefined;
