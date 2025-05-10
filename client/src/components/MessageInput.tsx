@@ -30,6 +30,17 @@ const MessageInput: React.FC<MessageInputProps> = ({
       onSend();
     }
   };
+  
+  // Handle keyboard shortcuts
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Send message on Enter key (without Shift key)
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!isSubmitDisabled) {
+        onSend();
+      }
+    }
+  };
 
   // Clear input field
   const clearInput = () => {
@@ -52,6 +63,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
               placeholder="پرسیارێک بنووسە... (دەتوانیت بە هەر زمانێک بنووسیت)"
               value={value}
               onChange={(e) => onChange(e.target.value)}
+              onKeyDown={handleKeyDown}
               dir="auto" // Auto-detect direction based on content
             />
             {value && (

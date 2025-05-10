@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Message } from '@/types';
 import { useChatStream } from '@/hooks/useChatStream';
 
@@ -72,7 +72,16 @@ export const useChat = () => {
     }
   }, [messageInput]);
 
-  const sendMessage = async () => {
+  // Clear all messages from chat (for refresh button)
+  const clearMessages = useCallback(() => {
+    setMessages([]);
+    if (isLoading) {
+      stopStream(); // Stop any active stream
+    }
+  }, [isLoading, stopStream]);
+
+  // Send a message and get AI response
+  const sendMessage = useCallback(async () => {
     if (!messageInput.trim() || isLoading) return;
     
     // Add user message to chat
@@ -87,7 +96,7 @@ export const useChat = () => {
     
     // Start streaming the response
     startStream(messageInput);
-  };
+  }, [messageInput, isLoading, startStream]);
 
   return {
     messages,
@@ -95,6 +104,7 @@ export const useChat = () => {
     setMessageInput,
     sendMessage,
     isLoading,
-    isNonKurdishDetected
+    isNonKurdishDetected,
+    clearMessages
   };
 };

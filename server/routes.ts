@@ -93,12 +93,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Accept': 'application/json'
       };
       
-      // Prepare request body for Cohere API
+      // Prepare request body for Cohere API with temperature adjustment for faster responses
       const cohereRequestBody = {
         message: message,
         model: 'command-r-plus',
         stream: true,
         preamble: systemPrompt,
+        temperature: 0.7, // Lower temperature for more focused responses
+        p: 0.8, // Adjust p value for more deterministic outputs
       };
       
       // Make streaming request to Cohere API
@@ -148,14 +150,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
           for (const line of lines) {
             if (line.includes('"text"')) {
               try {
-                const jsonLine = JSON.parse(line);
+                // Handle potential JSON parsing issues
+                let jsonString = line;
+                
+                // If JSON is malformed (doesn't end with closing brace), try to fix it
+                if (!jsonString.endsWith('}')) {
+                  jsonString += '}';
+                }
+                
+                const jsonLine = JSON.parse(jsonString);
                 if (jsonLine.text) {
                   completeResponse += jsonLine.text;
                   res.write(`data: ${jsonLine.text}\n\n`);
                 }
               } catch (e) {
-                // Handle parsing errors gracefully
-                console.error('Error parsing JSON line:', e);
+                // If JSON parsing fails, try to extract text with regex
+                try {
+                  const textMatch = line.match(/"text":"([^"]*)"/);
+                  if (textMatch && textMatch[1]) {
+                    const text = textMatch[1];
+                    completeResponse += text;
+                    res.write(`data: ${text}\n\n`);
+                  } else {
+                    console.error('Error parsing JSON line:', e);
+                  }
+                } catch (regexError) {
+                  console.error('Error with regex extraction:', regexError);
+                }
               }
             }
           }

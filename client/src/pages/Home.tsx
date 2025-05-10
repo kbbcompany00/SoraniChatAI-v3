@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Header from "@/components/Header";
 import InfoBanner from "@/components/InfoBanner";
 import ChatContainer from "@/components/ChatContainer";
 import MessageInput from "@/components/MessageInput";
 import { useChat } from "@/hooks/useChat";
+import { useToast } from "@/hooks/use-toast";
 
 const Home = () => {
   const [showBanner, setShowBanner] = useState(true);
+  const { toast } = useToast();
   
   // Load banner state from localStorage
   useEffect(() => {
@@ -27,13 +29,24 @@ const Home = () => {
     setMessageInput, 
     sendMessage, 
     isLoading, 
-    isNonKurdishDetected 
+    isNonKurdishDetected,
+    clearMessages
   } = useChat();
+
+  // Handle clearing the chat
+  const handleClearChat = useCallback(() => {
+    clearMessages();
+    toast({
+      title: "پاککرایەوە",
+      description: "چاتەکە بە سەرکەوتوویی پاککرایەوە",
+      duration: 3000,
+    });
+  }, [clearMessages, toast]);
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Header component */}
-      <Header />
+      {/* Header component with clear chat functionality */}
+      <Header onClearChat={handleClearChat} />
       
       {/* Optional information banner */}
       {showBanner && (
