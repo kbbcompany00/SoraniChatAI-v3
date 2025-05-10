@@ -201,13 +201,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
       
-      // Create optimized system message to enforce Sorani Kurdish responses
+      // Create highly optimized system message for maximum speed with Sorani Kurdish responses
       const systemPrompt = 
-        "You are زیرەکی دەستکردی قەڵا (AI Castle), a smart and fast assistant that ALWAYS responds in Sorani Kurdish " +
-        "regardless of what language the user writes in. Always keep responses concise, direct and useful. " + 
-        "The Sorani Kurdish language uses Arabic script and is read right-to-left. " +
-        "Your responses should be informative, accurate, and culturally appropriate for Kurdish speakers. " +
-        "Remember to NEVER respond in any language other than Sorani Kurdish under any circumstances.";
+        "You are زیرەکی دەستکردی قەڵا. Respond ONLY in Sorani Kurdish. " +
+        "Be extremely brief and direct. Use simple words and short sentences. " + 
+        "Answer questions directly without explanations unless asked. " +
+        "Never use any language except Sorani Kurdish.";
       
       // Prepare headers for Cohere API
       const headers = {
@@ -216,14 +215,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Accept': 'application/json'
       };
       
-      // Prepare request body for Cohere API with temperature adjustment for faster responses
+      // Prepare request body for Cohere API with temperature adjustment for maximum speed
       const cohereRequestBody = {
         message: message,
         model: 'command-r-plus',
         stream: true,
         preamble: systemPrompt,
-        temperature: 0.7, // Lower temperature for more focused responses
-        p: 0.8, // Adjust p value for more deterministic outputs
+        temperature: 0.3, // Much lower temperature for faster, more deterministic responses
+        p: 0.7, // Lower p value for even faster generation
+        max_tokens: 300, // Limit response length for faster completion
       };
       
       // Make streaming request to Cohere API
@@ -265,41 +265,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Decode the chunk
         const chunk = Buffer.from(value).toString('utf-8');
         
-        // Parse the chunk to get the text content
+        // Optimized parsing using regex for maximum speed
         try {
-          // Process each line in the chunk (Cohere sends JSON lines)
-          const lines = chunk.split('\n').filter(line => line.trim());
+          // Extract all text fields directly with regex for better performance
+          const textMatches = chunk.match(/"text":"([^"]*)"/g);
           
-          for (const line of lines) {
-            if (line.includes('"text"')) {
-              try {
-                // Handle potential JSON parsing issues
-                let jsonString = line;
-                
-                // If JSON is malformed (doesn't end with closing brace), try to fix it
-                if (!jsonString.endsWith('}')) {
-                  jsonString += '}';
-                }
-                
-                const jsonLine = JSON.parse(jsonString);
-                if (jsonLine.text) {
-                  completeResponse += jsonLine.text;
-                  res.write(`data: ${jsonLine.text}\n\n`);
-                }
-              } catch (e) {
-                // If JSON parsing fails, try to extract text with regex
-                try {
-                  const textMatch = line.match(/"text":"([^"]*)"/);
-                  if (textMatch && textMatch[1]) {
-                    const text = textMatch[1];
-                    completeResponse += text;
-                    res.write(`data: ${text}\n\n`);
-                  } else {
-                    console.error('Error parsing JSON line:', e);
-                  }
-                } catch (regexError) {
-                  console.error('Error with regex extraction:', regexError);
-                }
+          if (textMatches && textMatches.length > 0) {
+            for (const match of textMatches) {
+              // Extract just the text content without the quotes
+              const text = match.substring(7, match.length - 1);
+              if (text) {
+                completeResponse += text;
+                res.write(`data: ${text}\n\n`);
               }
             }
           }
