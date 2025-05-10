@@ -201,12 +201,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
       
-      // Create highly optimized system message for maximum speed with Sorani Kurdish responses
+      // Enhanced system message for detailed Sorani Kurdish responses
       const systemPrompt = 
-        "You are زیرەکی دەستکردی قەڵا. Respond ONLY in Sorani Kurdish. " +
-        "Be extremely brief and direct. Use simple words and short sentences. " + 
-        "Answer questions directly without explanations unless asked. " +
-        "Never use any language except Sorani Kurdish.";
+        "You are زیرەکی دەستکردی قەڵا, an expert in providing detailed information. " +
+        "ALWAYS respond in high-quality, grammatically correct Sorani Kurdish ONLY. " +
+        "Provide comprehensive, detailed, and accurate information with proper examples. " + 
+        "For any question, offer complete explanations with relevant details, while maintaining natural Kurdish language flow. " +
+        "Structure your answers with clear, logical paragraphs. " +
+        "Use proper Kurdish punctuation and follow correct Kurdish Sorani grammar rules. " +
+        "NEVER use any language except Sorani Kurdish under any circumstances. " +
+        "If the user asks a complicated question, break down your answer into clear sections.";
       
       // Prepare headers for Cohere API
       const headers = {
@@ -215,15 +219,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Accept': 'application/json'
       };
       
-      // Prepare request body for Cohere API with temperature adjustment for maximum speed
+      // Prepare request body for Cohere API with detailed Sorani Kurdish responses
       const cohereRequestBody = {
         message: message,
         model: 'command-r-plus',
         stream: true,
         preamble: systemPrompt,
-        temperature: 0.3, // Much lower temperature for faster, more deterministic responses
-        p: 0.7, // Lower p value for even faster generation
-        max_tokens: 300, // Limit response length for faster completion
+        temperature: 0.65, // Balanced temperature for creativity and accuracy
+        p: 0.8, // Good balance for coherent but varied responses
+        max_tokens: 800, // Allow for longer, more detailed responses
       };
       
       // Make streaming request to Cohere API
