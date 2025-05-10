@@ -266,15 +266,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        // Import optimized streaming utilities
-        const { prepareStreamingChunks, workerPool, PerformanceTimer } = require('./performance');
+        // Use the already imported streaming utilities
+        // (These are already imported at the top of the file)
         
         // Create performance timer for tracking response times
         const timer = new PerformanceTimer();
         
         // Prepare optimized chunks for ultra-fast delivery
         // This preserves the same output format but with optimized delivery
-        const chunks = prepareStreamingChunks(completeResponse);
+        const chunks = completeResponse.split('\n');
         timer.mark('chunksPrepped');
         
         // Use an adaptive timing algorithm that starts fast and adjusts based on content length

@@ -229,24 +229,43 @@ export async function processStreamingResponse(
             // Handle potential JSON parsing issues with optimized approach
             let jsonString = line;
             
-            // If JSON is malformed (doesn't end with closing brace), try to fix it
+            // Try to fix common JSON parsing issues with Kurdish text
+            // If JSON is malformed, try several fixes
             if (!jsonString.endsWith('}')) {
               jsonString += '}';
             }
             
-            const jsonLine = JSON.parse(jsonString);
-            if (jsonLine.text) {
-              // Clean and concatenate full response without Unicode character issues
-              const cleanText = jsonLine.text
-                .replace(/\\n/g, '\n')
-                .replace(/\\"/g, '"')
-                // Remove any special character separators that make text unusable
-                .replace(/([^\s])\\([a-zA-Z])/g, '$1$2')
-                // Handle Kurdish characters by removing quotes
-                .replace(/"([ەڕێۆ،ن])"/g, '$1');
+            // If there are unescaped quotes in the string causing issues
+            jsonString = jsonString.replace(/([^\\])"([^"]*[^\\\s])"([,}])/g, '$1\\"$2\\"$3');
+            
+            try {
+              const jsonLine = JSON.parse(jsonString);
               
-              completeResponse += cleanText;
-              onChunk(cleanText);
+              if (jsonLine.text) {
+                // Clean and concatenate full response without Unicode character issues
+                const cleanText = jsonLine.text
+                  .replace(/\\n/g, '\n')
+                  .replace(/\\"/g, '"')
+                  // Remove any special character separators that make text unusable
+                  .replace(/([^\s])\\([a-zA-Z])/g, '$1$2')
+                  // Handle Kurdish characters by removing quotes
+                  .replace(/"([ەڕێۆ،ن])"/g, '$1');
+                
+                completeResponse += cleanText;
+                onChunk(cleanText);
+              }
+            } catch (parseError) {
+              // If JSON parsing still fails, try regex extraction as fallback
+              const textMatch = line.match(/"text":"([^"]*)"/);
+              if (textMatch && textMatch[1]) {
+                const text = textMatch[1]
+                  .replace(/\\n/g, '\n')
+                  .replace(/\\"/g, '"');
+                completeResponse += text;
+                onChunk(text);
+              } else {
+                console.error('Error parsing JSON line:', parseError);
+              }
             }
           } catch (e) {
             // If JSON parsing fails, try to extract text with regex
