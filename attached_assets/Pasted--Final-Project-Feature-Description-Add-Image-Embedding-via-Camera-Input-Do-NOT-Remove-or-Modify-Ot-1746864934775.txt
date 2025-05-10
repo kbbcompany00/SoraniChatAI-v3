@@ -1,0 +1,88 @@
+ Final Project Feature Description
+Add Image Embedding via Camera Input — Do NOT Remove or Modify Other Code
+
+🎯 Objective:
+Extend the current AI project by adding a new feature that lets the user capture or upload an image, send it to Cohere's /v2/embed API (input_type: "image"), and receive a real-time embedding vector.
+This feature must be added without deleting or affecting any part of the existing project.
+
+✅ Requirements:
+Allow the user to capture an image from the camera (or upload from device).
+
+Convert the image to base64 with MIME type prefix:
+
+bash
+Copy
+Edit
+data:image/jpeg;base64,...
+Send the image to Cohere’s API:
+
+bash
+Copy
+Edit
+POST https://api.cohere.com/v2/embed
+Receive and use the returned vector (float[]) for display, analysis, or further AI logic.
+
+No database should be used or touched — all data is processed in memory.
+
+All other features in the project must remain untouched and continue working normally.
+
+🧠 Sample Code (Python for Reference / Testing)
+python
+Copy
+Edit
+import cohere
+import requests
+import base64
+
+co = cohere.ClientV2("<YOUR_API_KEY>")
+
+image = requests.get("https://cohere.com/favicon-32x32.png")
+stringified_buffer = base64.b64encode(image.content).decode("utf-8")
+content_type = image.headers["Content-Type"]
+image_base64 = f"data:{content_type};base64,{stringified_buffer}"
+
+response = co.embed(
+    model="embed-v4.0",
+    input_type="image",
+    embedding_types=["float"],
+    images=[image_base64],
+)
+
+print(response)
+🟢 This code fetches an image, encodes it, sends it to Cohere, and prints the resulting embedding vector.
+
+🧠 Sample Code (TypeScript for Integration)
+ts
+Copy
+Edit
+import { CohereClient } from 'cohere-ai';
+
+const cohere = new CohereClient({
+  token: "<YOUR_API_KEY>"
+});
+
+(async () => {
+  const embed = await cohere.v2.embed({
+    texts: ['hello', 'goodbye'],
+    model: 'embed-v4.0',
+    inputType: 'classification',
+    embeddingTypes: ['float'],
+  });
+  console.log(embed);
+})();
+🟢 This example shows how text embedding works using embed-v4.0. For images, replace texts with images and set inputType to "image".
+
+🔧 Expected Implementation:
+Component	Task
+Camera / Upload UI	Capture or upload image from user
+Base64 Conversion	Convert image to base64 string with MIME prefix
+API Request	Send base64 image to Cohere /v2/embed with input_type: image
+Embedding Display	Show or process the returned float vector immediately
+Isolation	This feature must be standalone — don’t break existing functionality
+
+❌ DO NOT:
+❌ Remove or change any existing code in the project.
+
+❌ Add a database or data storage.
+
+❌ Replace the current AI logic — this is an addition.
