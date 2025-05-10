@@ -40,15 +40,15 @@ const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   return (
-    <footer className="bg-white border-t border-gray-200 p-4">
-      <div className="max-w-2xl mx-auto">
+    <footer className="bg-white border-t border-indigo-100 p-4 shadow-lg">
+      <div className="max-w-3xl mx-auto">
         <form className="flex items-center gap-3" onSubmit={handleSubmit}>
           <div className="relative flex-1">
             <input 
               type="text" 
               id="message-input"
               ref={inputRef}
-              className="w-full border border-gray-300 rounded-full py-3 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full border border-indigo-200 rounded-full py-4 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-primary focus:border-indigo-300 shadow-sm bg-indigo-50/30"
               placeholder="پرسیارێک بنووسە... (دەتوانیت بە هەر زمانێک بنووسیت)"
               value={value}
               onChange={(e) => onChange(e.target.value)}
@@ -66,8 +66,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
           </div>
           <button 
             type="submit" 
-            className="bg-primary hover:bg-indigo-700 text-white rounded-full p-2.5 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-indigo-600 to-primary hover:from-indigo-700 hover:to-indigo-600 text-white rounded-full p-3.5 flex items-center justify-center transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isSubmitDisabled}
+            aria-label="ناردن"
           >
             <span className="material-icons">send</span>
           </button>
@@ -75,7 +76,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
         {/* Language Detection Indicator */}
         {isNonKurdishDetected && (
-          <div className="flex items-center justify-center mt-2 text-xs text-gray-500 gap-1.5">
+          <div className="flex items-center justify-center mt-2.5 text-xs text-indigo-600 gap-1.5 bg-indigo-50 py-1.5 px-3 rounded-full mx-auto w-fit">
             <span className="material-icons text-xs">translate</span>
             <p>زمانی ئینگلیزی ناسرایەوە، وەڵامەکەت بە کوردی دەبێت</p>
           </div>

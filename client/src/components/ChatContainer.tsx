@@ -38,34 +38,41 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) =>
     >
       {/* Welcome Message */}
       {messages.length === 0 && (
-        <div className="max-w-2xl mx-auto mb-8 message-appear">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-3">بەخێربێیت بۆ هۆشی دەستکرد کوردی!</h2>
-            <p className="text-gray-600 mb-3">دەتوانیت پرسیارم لێ بکەیت دەربارەی هەر بابەتێک. من بە کوردی سۆرانی وەڵامت دەدەمەوە.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
+        <div className="max-w-3xl mx-auto mb-8 message-appear">
+          <div className="bg-gradient-to-br from-white to-indigo-50 rounded-lg shadow-lg border border-indigo-100 p-5 md:p-7">
+            <div className="flex items-center mb-4">
+              <span className="material-icons text-primary text-2xl ml-3">castle</span>
+              <h2 className="text-xl font-bold text-gray-800">بەخێربێیت بۆ زیرەکی دەستکردی قەڵا!</h2>
+            </div>
+            <p className="text-gray-700 mb-4 leading-relaxed">دەتوانیت پرسیارم لێ بکەیت دەربارەی هەر بابەتێک. من بە کوردی سۆرانی وەڵامت دەدەمەوە بە شێوەیەکی خێرا و زیرەکانە.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
               <button 
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-md transition-colors text-sm text-right"
+                className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 py-3 px-4 rounded-lg transition-colors text-sm text-right flex items-center justify-between group"
                 onClick={() => document.getElementById('message-input')?.setAttribute('value', 'چۆن دەتوانم فێری زمانی کوردی بم؟')}
               >
-                چۆن دەتوانم فێری زمانی کوردی بم؟
+                <span className="material-icons text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span>چۆن دەتوانم فێری زمانی کوردی بم؟</span>
               </button>
               <button 
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-md transition-colors text-sm text-right"
+                className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 py-3 px-4 rounded-lg transition-colors text-sm text-right flex items-center justify-between group"
                 onClick={() => document.getElementById('message-input')?.setAttribute('value', 'چەند شوێنی سەرنجڕاکێش هەن لە کوردستان؟')}
               >
-                چەند شوێنی سەرنجڕاکێش هەن لە کوردستان؟
+                <span className="material-icons text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span>چەند شوێنی سەرنجڕاکێش هەن لە کوردستان؟</span>
               </button>
               <button 
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-md transition-colors text-sm text-right"
+                className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 py-3 px-4 rounded-lg transition-colors text-sm text-right flex items-center justify-between group"
                 onClick={() => document.getElementById('message-input')?.setAttribute('value', 'باسی کەش و هەوای هەولێر بکە')}
               >
-                باسی کەش و هەوای هەولێر بکە
+                <span className="material-icons text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span>باسی کەش و هەوای هەولێر بکە</span>
               </button>
               <button 
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-md transition-colors text-sm text-right"
+                className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 py-3 px-4 rounded-lg transition-colors text-sm text-right flex items-center justify-between group"
                 onClick={() => document.getElementById('message-input')?.setAttribute('value', 'چەند ڕێگایەک هەیە بۆ چێشت لێنانی دۆلمە؟')}
               >
-                چەند ڕێگایەک هەیە بۆ چێشت لێنانی دۆلمە؟
+                <span className="material-icons text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">arrow_back</span>
+                <span>چەند ڕێگایەک هەیە بۆ چێشت لێنانی دۆلمە؟</span>
               </button>
             </div>
           </div>
@@ -74,17 +81,18 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) =>
 
       {/* Render Messages */}
       {messages.map((message, index) => (
-        <div key={index} className="max-w-2xl mx-auto mb-6 message-appear">
+        <div key={index} className="max-w-3xl mx-auto mb-6 message-appear">
           {message.role === 'user' ? (
             // User Message
             <>
               <div className="flex justify-end">
-                <div className="bg-primary text-white rounded-lg py-2 px-4 max-w-[80%] shadow-sm">
-                  <p>{message.content}</p>
+                <div className="bg-gradient-to-br from-primary to-indigo-700 text-white rounded-2xl py-3 px-5 max-w-[85%] shadow-md border border-indigo-500">
+                  <p className="leading-relaxed">{message.content}</p>
                 </div>
               </div>
-              <div className="flex justify-end mt-1">
-                <span className="text-xs text-gray-500">
+              <div className="flex justify-end mt-1.5">
+                <span className="text-xs text-gray-500 flex items-center">
+                  <span className="material-icons text-xs ml-1">person</span>
                   {formatTime(new Date(message.timestamp))}
                 </span>
               </div>
@@ -93,13 +101,14 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isLoading }) =>
             // AI Response
             <>
               <div className="flex">
-                <div className="bg-white border border-gray-200 rounded-lg py-2 px-4 max-w-[80%] shadow-sm">
-                  <div dangerouslySetInnerHTML={{ __html: message.content.replace(/\n\n/g, '<br/><br/>').replace(/\n/g, '<br/>') }} />
+                <div className="bg-white border border-indigo-100 rounded-2xl py-3 px-5 max-w-[85%] shadow-md">
+                  <div className="leading-relaxed" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n\n/g, '<br/><br/>').replace(/\n/g, '<br/>') }} />
                   {message.isStreaming && <span className="typing-animation"></span>}
                 </div>
               </div>
-              <div className="flex mt-1">
-                <span className="text-xs text-gray-500">
+              <div className="flex mt-1.5">
+                <span className="text-xs text-gray-500 flex items-center">
+                  <span className="material-icons text-xs ml-1">castle</span>
                   {message.isStreaming ? 'ئێستا' : formatTime(new Date(message.timestamp))}
                 </span>
               </div>

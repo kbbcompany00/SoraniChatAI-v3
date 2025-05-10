@@ -61,11 +61,13 @@
 /* Custom animations and styles */
 .typing-animation::after {
   content: '';
-  width: 6px;
-  height: 16px;
+  width: 8px;
+  height: 18px;
   background-color: hsl(var(--primary));
   display: inline-block;
   animation: blink 1s step-end infinite;
+  border-radius: 1px;
+  margin-right: 2px;
 }
 
 @keyframes blink {
@@ -74,16 +76,16 @@
 }
 
 .message-appear {
-  animation: fadeIn 0.3s ease-in;
+  animation: fadeIn 0.4s ease-out;
 }
 
 @keyframes fadeIn {
-  0% { opacity: 0; transform: translateY(10px); }
+  0% { opacity: 0; transform: translateY(15px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
 .scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -91,6 +93,26 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: #D1D5DB;
+  background-color: #a5b4fc;
   border-radius: 20px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #818cf8;
+}
+
+/* Add a subtle animation for the castle icon in the header */
+@keyframes castleFloating {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+header .material-icons {
+  animation: castleFloating 3s ease-in-out infinite;
+}
+
+/* Better focus styles for buttons */
+button:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
 }
