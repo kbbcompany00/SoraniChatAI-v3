@@ -30,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({ onClearChat }) => {
       <div 
         className="absolute inset-0 z-0" 
         style={{
-          backgroundImage: 'url("../assets/header-bg.png")',
+          backgroundImage: `url(${headerBgImage})`,
           backgroundRepeat: 'no-repeat',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
